@@ -1500,6 +1500,7 @@ class ProcessingStatus(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     dog_id = db.Column(db.String, nullable=False)
+    source_dog_id = db.Column(db.String, nullable=False)
     vet_id = db.Column(db.String, nullable=False)
     status = db.Column(db.String, nullable=False)
     error_message = db.Column(db.Text, nullable=True)
