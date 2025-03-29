@@ -1,3 +1,6 @@
-Metadata-Version: 2.1
-Name: common-models
+Metadata-Version: 2.4
+Name: common_models
 Version: 0.1.0
+Requires-Dist: Flask
+Requires-Dist: Flask-SQLAlchemy
+Dynamic: requires-dist

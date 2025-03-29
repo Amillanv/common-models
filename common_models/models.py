@@ -1493,3 +1493,14 @@ class Feedback(db.Model):
 
     def __repr__(self):
         return f"Feedback('{self.id}')"
+
+class ProcessingStatus(db.Model):
+    __table_args__ = {'extend_existing': True}
+    __tablename__ = "processing_status"
+
+    id = db.Column(db.Integer, primary_key=True)
+    dog_id = db.Column(db.String, nullable=False)
+    vet_id = db.Column(db.String, nullable=False)
+    status = db.Column(db.String, nullable=False)
+    error_message = db.Column(db.Text, nullable=True)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
