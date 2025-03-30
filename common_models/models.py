@@ -1504,4 +1504,7 @@ class ProcessingStatus(db.Model):
     vet_id = db.Column(db.String, nullable=True)
     status = db.Column(db.String, nullable=False)
     error_message = db.Column(db.Text, nullable=True)
+    start_time = db.Column(db.DateTime, nullable=True)
+    end_time = db.Column(db.DateTime, nullable=True)
+    duration = db.Column(db.Float, nullable=True)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
