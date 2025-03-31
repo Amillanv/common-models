@@ -1499,9 +1499,9 @@ class ProcessingStatus(db.Model):
     __tablename__ = "processing_status"
 
     id = db.Column(db.Integer, primary_key=True)
-    dog_id = db.Column(db.String, nullable=True)
+    dog_id = db.Column(db.Integer, nullable=True)
     source_dog_id = db.Column(db.String, nullable=False)
-    vet_id = db.Column(db.String, nullable=True)
+    vet_id = db.Column(db.Integer, nullable=True)
     status = db.Column(db.String, nullable=False)
     error_message = db.Column(db.Text, nullable=True)
     start_time = db.Column(db.DateTime, nullable=True)
