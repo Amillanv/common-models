@@ -1508,4 +1508,5 @@ class ProcessingStatus(db.Model):
     end_time = db.Column(db.DateTime, nullable=True)
     duration = db.Column(db.Float, nullable=True)
     job_id = db.Column(db.String, nullable=True)
+    extra_json = db.Column(db.String, nullable=True)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
