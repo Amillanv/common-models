@@ -1024,7 +1024,8 @@ class PatientLabResult(db.Model):
 
     lab_result_id = db.Column(db.Integer, primary_key=True)
     diagnostic_id = db.Column(db.Integer, db.ForeignKey('patient_diagnostics.diagnostic_id', ondelete="CASCADE"), nullable=False)
-
+    dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id'), nullable=False)
+    
     result_name = db.Column(db.String(100), nullable=False)
     result_value = db.Column(db.String(50), nullable=True)
     uom = db.Column(db.String(50), nullable=True)  # e.g., mg/dL, %, etc.
