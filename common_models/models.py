@@ -40,6 +40,13 @@ drug_condition = db.Table(
     extend_existing=True
 )
 
+drug_symptom = db.Table(
+    'drug_symptom',
+    db.Column('drug_id', db.Integer, ForeignKey('drugs.drug_id'), primary_key=True),
+    db.Column('symptom_id', db.Integer, ForeignKey('symptoms.symptom_id'), primary_key=True),
+    extend_existing=True
+)
+
 panel_components = db.Table('panel_components',
     db.Column('panel_id', db.Integer, db.ForeignKey('panel.id', ondelete="CASCADE"), primary_key=True),
     db.Column('component_id', db.Integer, db.ForeignKey('component.id'), primary_key=True),
@@ -577,6 +584,7 @@ class Symptom(db.Model):
     conditions = db.relationship('Condition', secondary='condition_symptom', back_populates='symptoms')
 
     preventions = db.relationship('Prevention', secondary=prevention_symptom, back_populates='symptoms')
+    drugs = db.relationship('Drugs', secondary=drug_symptom, back_populates='symptoms')
 
     def __repr__(self):
         return f"Symptom('{self.symptom_id}', '{self.symptom_name}')"
@@ -977,8 +985,6 @@ class PatientSymptoms(db.Model):
     def __repr__(self):
         return f"PatientSymptoms('{self.symptom_entry_id}', '{self.symptom_name}')"
 
-
-    
 class PatientDiagnostics(db.Model):
     __table_args__ = {'extend_existing': True}
     __tablename__ = 'patient_diagnostics'
@@ -1037,6 +1043,7 @@ class PatientLabResult(db.Model):
     component_id = db.Column(db.Integer, db.ForeignKey('component.id'), nullable=True)
     
     confidence_score = db.Column(db.Float, nullable=True)
+    group_hash = db.Column(db.String(180), index=True)
     
     def __repr__(self):
         return f"<LabResult {self.result_name}: {self.result_value} ({self.indicator})>"
@@ -1288,6 +1295,7 @@ class Drugs(db.Model):
     use_cases = db.relationship("UseCases", secondary="dosage_info", viewonly=True)
     
     conditions = db.relationship('Condition', secondary=drug_condition, back_populates='drugs')
+    symptoms = db.relationship('Symptom', secondary=drug_symptom, back_populates='drugs')
 
 class DosageForms(db.Model):
     __table_args__ = {'extend_existing': True}
