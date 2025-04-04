@@ -1108,7 +1108,7 @@ class PatientEmbedding(db.Model):
     
     dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id', ondelete="CASCADE"), nullable=False)
     category = db.Column(db.String(100), nullable=False)
-    entry_id = db.Column(db.Integer, nullable=False)
+    entry_id = db.Column(db.String(100), nullable=False)
     
     text_key = db.Column(String, nullable=False)
     embedding_path = db.Column(String, nullable=False)
