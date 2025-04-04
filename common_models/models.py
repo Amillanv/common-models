@@ -1113,6 +1113,8 @@ class PatientEmbedding(db.Model):
     text_key = db.Column(String, nullable=False)
     embedding_path = db.Column(String, nullable=False)
     
+    linked_ikb = db.Column(String, nullable=True)
+    
     status = db.Column(String)
     timestamp = db.Column(DateTime, default=datetime.now)
     
