@@ -1101,6 +1101,26 @@ class PatientVitals(db.Model):
         return f"PatientVitals('{self.id}', '{self.dog_id}')"
 
 
+class PatientEmbedding(db.Model):
+    __tablename__ = "patient_embeddings"
+
+    id = db.Column(db.Integer, primary_key=True)
+    
+    dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id', ondelete="CASCADE"), nullable=False)
+    category = db.Column(db.String(100), nullable=False)
+    entry_id = db.Column(db.Integer, nullable=False)
+    
+    text_key = db.Column(String, nullable=False)
+    embedding_path = db.Column(String, nullable=False)
+    
+    status = db.Column(String)
+    timestamp = db.Column(DateTime, default=datetime.now)
+    
+    last_updated = db.Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+    def __repr__(self):
+        return f"<Embedding {self.id} | {self.category} | {self.entry_id}>"
+    
 class PatientInterventions(db.Model):
     __table_args__ = {'extend_existing': True}
     __tablename__ = 'patient_interventions'
