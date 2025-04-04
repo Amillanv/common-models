@@ -1086,6 +1086,21 @@ class Weights(db.Model):
     def __repr__(self):
         return f"Weights('{self.id}', '{self.dog_id}')"
 
+class PatientVitals(db.Model):
+    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'patient_vitals'
+    id = db.Column(db.Integer, primary_key=True)
+    dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id', ondelete="CASCADE"), nullable=False)
+    type = db.Column(db.String(100), nullable=True)
+    value = db.Column(db.String(100), nullable=False)  # Assuming weight is stored as a float
+    uom = db.Column(db.String(100), nullable=True)
+    indicator = db.Column(db.String(100), nullable=True)
+    record_date = db.Column(Date, nullable=False)
+
+    def __repr__(self):
+        return f"PatientVitals('{self.id}', '{self.dog_id}')"
+
+
 class PatientInterventions(db.Model):
     __table_args__ = {'extend_existing': True}
     __tablename__ = 'patient_interventions'
