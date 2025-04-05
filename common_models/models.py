@@ -1111,6 +1111,7 @@ class PatientEmbedding(db.Model):
     entry_id = db.Column(db.String(100), nullable=False)
     
     text_key = db.Column(String, nullable=False)
+    value_key = db.Column(String, nullable=False)
     embedding_path = db.Column(String, nullable=False)
     
     linked_ikb = db.Column(String, nullable=True)
