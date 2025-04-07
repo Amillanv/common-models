@@ -1118,6 +1118,7 @@ class PatientEmbedding(db.Model):
     
     status = db.Column(String)
     timestamp = db.Column(DateTime, default=datetime.now)
+    group_hash = db.Column(db.String(180))
     
     last_updated = db.Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
