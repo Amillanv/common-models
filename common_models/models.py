@@ -1173,6 +1173,26 @@ class PatientStories(db.Model):
     def __repr__(self):
         return f"PatientStories('{self.id}', 'Patient ID: {self.dog_id}', 'Handout: {self.handout_id}')"
 
+class PromptRecommendations(db.Model):
+    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'prompt_recommendations'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id', ondelete="CASCADE"), nullable=False)
+    
+    generated_at = db.Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    generated_by_model = db.Column(db.String(50), nullable=False)
+    prompts_json = db.Column(db.JSONB, nullable=False)
+    
+    clicked_prompts = db.Column(db.JSONB, nullable=False, default=list)
+    
+    total_clicks = db.Column(db.Integer, default=0)
+    
+    manually_flagged = db.Column(db.Boolean, default=False)
+    
+    def __repr__(self):
+        return f"PromptRecommendations('{self.id}', 'Dog ID: {self.dog_id}')"
+
 
 class Codebook(db.Model):
     __table_args__ = {'extend_existing': True}
