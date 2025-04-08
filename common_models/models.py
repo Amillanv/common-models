@@ -1182,9 +1182,9 @@ class PromptRecommendations(db.Model):
     
     generated_at = db.Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     generated_by_model = db.Column(db.String(50), nullable=False)
-    prompts_json = db.Column(db.JSONB, nullable=False)
+    prompts_json = db.Column(JSONB, nullable=False)
     
-    clicked_prompts = db.Column(db.JSONB, nullable=False, default=list)
+    clicked_prompts = db.Column(JSONB, nullable=False, default=list)
     
     total_clicks = db.Column(db.Integer, default=0)
     
