@@ -450,7 +450,7 @@ class Appointments(db.Model):
     startTime = db.Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     duration = db.Column(db.Integer, nullable=False)
     notes = db.Column(Text, nullable=True)
-    display_id = db.Column(db.String, db.ForeignKey('displays.display_id'))
+    display_id = db.Column(db.String, db.ForeignKey('displays.display_id'), nullable=True)
     
     def __repr__(self):
             return f"Appointments('{self.appointment_id}')"
