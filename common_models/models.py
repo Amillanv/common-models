@@ -454,6 +454,16 @@ class Appointments(db.Model):
     def __repr__(self):
             return f"Appointments('{self.appointment_id}')"
 
+class Display(db.Model):
+    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'displays'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    display_id = db.Column(db.String, unique=True)
+    name = db.Column(db.String)
+    location = db.Column(db.String)
+    vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), nullable=False)
+    
 class EHRJson(db.Model):
     __table_args__ = {'extend_existing': True}
     __tablename__ = 'ehr_jsons'
