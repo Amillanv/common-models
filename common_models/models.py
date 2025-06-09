@@ -447,7 +447,7 @@ class Appointments(db.Model):
     updated = db.Column(Date, server_default=func.now(), nullable=False)
     status = db.Column(db.String(60), nullable=False)
     trackingStatus = db.Column(db.String(60), nullable=False)
-    startTime = db.Column(Date, server_default=func.now(), nullable=False)
+    startTime = db.Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     duration = db.Column(db.Integer, nullable=False)
     notes = db.Column(Text, nullable=True)
     
