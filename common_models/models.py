@@ -553,7 +553,6 @@ class ConditionGeorisk(db.Model):
     last_updated = db.Column(Date, server_default=func.now(), nullable=True)
     notes = db.Column(db.Text)
     source = db.Column(db.String(100), nullable=True)
-    metadata = db.Column(db.JSON, nullable=True)
 
 class Condition(db.Model):
     __table_args__ = {'extend_existing': True}
