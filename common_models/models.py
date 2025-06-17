@@ -536,6 +536,24 @@ class StorySlides(db.Model):
     def __repr__(self):
         return f"StorySlides('{self.id}', '{self.handout_id}')"
 
+class ConditionGeorisk(db.Model):
+    __tablename__ = 'condition_georisk'
+    __table_args__ = (
+        db.UniqueConstraint('condition_id', 'region_code', name='uq_condition_region'),
+        {'extend_existing': True}
+    )
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    condition_id = db.Column(db.Integer, db.ForeignKey('conditions.condition_id'), nullable=False)
+    condition_name = db.Column(db.Text, nullable=True)
+
+    region_level = db.Column(db.Enum('state', 'county', 'zip', name='region_levels'), nullable=False)
+    region_code = db.Column(db.String(50), nullable=False)
+    risk_level = db.Column(db.Float(), nullable=True)
+    last_updated = db.Column(Date, server_default=func.now(), nullable=True)
+    notes = db.Column(db.Text)
+    source = db.Column(db.String(100), nullable=True)
+    metadata = db.Column(db.JSON, nullable=True)
 
 class Condition(db.Model):
     __table_args__ = {'extend_existing': True}
