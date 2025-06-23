@@ -1471,6 +1471,18 @@ class ActiveIngredients(db.Model):
     drugs = relationship("Drugs", secondary=drug_ingredients, back_populates="ingredients")
 
 
+class Simulation(db.Model):
+    __tablename__ = 'simulations'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), nullable=False)
+    dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id'), nullable=False)
+    display_id = db.Column(db.String, db.ForeignKey('displays.display_id'), nullable=False)
+    data = db.Column(db.JSON, nullable=False)
+    created_at = db.Column(DateTime, server_default=func.now())
+    
+
 class AuditLog(db.Model):
     __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
