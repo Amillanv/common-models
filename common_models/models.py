@@ -1483,6 +1483,17 @@ class Simulation(db.Model):
     created_at = db.Column(DateTime, server_default=func.now())
     
 
+class WaitlistEntry(db.Model):
+    __tablename__ = 'waitlist'
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    is_verified = db.Column(db.Boolean, default=False)
+    referral_code = db.Column(db.String(16), unique=True)
+    referred_by = db.Column(db.String(16), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    position = db.Column(db.Integer)
+    
 class AuditLog(db.Model):
     __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
