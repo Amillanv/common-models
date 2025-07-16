@@ -1492,7 +1492,7 @@ class WaitlistEntry(db.Model):
     referral_code = db.Column(db.String(16), unique=True)
     referred_by = db.Column(db.String(16), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
-    position = db.Column(db.Integer)
+    referred = db.Column(db.Integer)
     
 class AuditLog(db.Model):
     __table_args__ = {'extend_existing': True}
