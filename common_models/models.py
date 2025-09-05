@@ -1024,7 +1024,7 @@ class PatientDiagnostics(db.Model):
     panel_id = db.Column(db.Integer, db.ForeignKey('panel.id'), nullable=True)  # If lab panel
     imaging_id = db.Column(db.Integer, db.ForeignKey('imaging.imaging_id'), nullable=True)  # If imaging
     source = db.Column(db.String(100), nullable=True)  # e.g., "PiMS", "Manual", "Inferred"
-    source_id = db.Column(db.Integer, nullable=True)
+    source_id = db.Column(db.Text, nullable=True)
     
     name =  db.Column(db.String(500))
     laboratory = db.Column(db.String(100))
