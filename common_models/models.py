@@ -2,9 +2,9 @@ from datetime import datetime
 from common_models.db import db
 from flask_login import UserMixin
 from sqlalchemy.dialects.postgresql import JSON
-from sqlalchemy.dialects.postgresql import JSONB  # Import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.sql import func
-from sqlalchemy import Column, Integer, DateTime, String, Float, Date, ForeignKey, Boolean, Text, Table
+from sqlalchemy import func, text, Enum, BigInteger, UniqueConstraint, Index, Column, Integer, DateTime, String, Float, Date, ForeignKey, Boolean, Text, Table
 import csv
 import random
 import string
@@ -12,6 +12,8 @@ import json
 import pandas as pd
 import io
 from sqlalchemy.orm import relationship
+import enum
+import uuid
 
 dog_vet_association = db.Table('dog_vet',
     db.Column('dog_id', db.Integer, db.ForeignKey('dog.dog_id'), primary_key=True),
@@ -1482,7 +1484,68 @@ class Simulation(db.Model):
     data = db.Column(db.JSON, nullable=False)
     created_at = db.Column(DateTime, server_default=func.now())
     
+class RunStatus(enum.Enum):
+    started = "started"
+    success = "success"
+    error   = "error"
+    skipped = "skipped"
+    retry   = "retry"
 
+class BatchRun(db.Model):
+    __tablename__ = "batch_runs"
+    __table_args__ = (
+        UniqueConstraint("clinic_id", "clinic_local_date", name="uq_batch_per_clinic_per_day"),
+        {"extend_existing": True},
+    )
+
+    id = db.Column(db.BigInteger, primary_key=True)
+    batch_id = db.Column(UUID(as_uuid=True), unique=True, nullable=False, index=True, default=uuid.uuid4)
+    clinic_id = db.Column(db.Integer, index=True, nullable=False)
+    practice_id = db.Column(db.String(128))
+    pims_provider = db.Column(db.String(64))
+    run_source = db.Column(db.String(32), default="api")  # manual|scheduler|api
+    clinic_local_date = db.Column(Date, nullable=False)
+
+    requested = db.Column(db.Integer, nullable=False, default=0)
+    succeeded = db.Column(db.Integer, nullable=False, default=0)
+    failed = db.Column(db.Integer, nullable=False, default=0)
+
+    started_at = db.Column(db.DateTime(timezone=True), server_default=func.now(), index=True)
+    finished_at = db.Column(db.DateTime(timezone=True))
+    duration_ms = db.Column(BigInteger)
+
+    p50_ms = db.Column(BigInteger)
+    p95_ms = db.Column(BigInteger)
+
+    metrics = db.Column(JSONB)  # any extra counters you want
+    notes = db.Column(JSONB)
+
+class TaskRun(db.Model):
+    __tablename__ = "task_runs"
+    __table_args__ = (
+        UniqueConstraint("batch_id", "patient_id", name="uq_task_by_patient_in_batch"),
+        {"extend_existing": True},
+    )
+
+    id = db.Column(db.BigInteger, primary_key=True)
+    batch_id = db.Column(UUID(as_uuid=True), ForeignKey("batch_runs.batch_id", ondelete="CASCADE"), index=True, nullable=False)
+    clinic_id = db.Column(db.Integer, index=True, nullable=False)
+
+    task_id = db.Column(db.String(64), index=True)  # Celery task id
+    patient_id = db.Column(db.String(64), index=True)
+    dog_id = db.Column(db.Integer)
+
+    status = db.Column(Enum(RunStatus, name="run_status"), nullable=False, default=RunStatus.started)
+    retries = db.Column(db.Integer, nullable=False, default=0)
+
+    started_at = db.Column(db.DateTime(timezone=True), server_default=func.now(), index=True)
+    finished_at = db.Column(db.DateTime(timezone=True))
+    duration_ms = db.Column(BigInteger)
+
+    error_class = db.Column(db.String(128))
+    error_msg = db.Column(db.Text)
+    meta = db.Column(JSONB)
+    
 class WaitlistEntry(db.Model):
     __tablename__ = 'waitlist'
 
