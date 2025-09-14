@@ -4,7 +4,7 @@ from flask_login import UserMixin
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.sql import func
-from sqlalchemy import func, text, Enum, BigInteger, UniqueConstraint, Index, Column, Integer, DateTime, String, Float, Date, ForeignKey, Boolean, Text, Table
+from sqlalchemy import Numeric, Time, func, text, Enum, BigInteger, UniqueConstraint, Index, Column, Integer, DateTime, String, Float, Date, ForeignKey, Boolean, Text, Table
 import csv
 import random
 import string
@@ -407,13 +407,32 @@ class Vet(db.Model, UserMixin):
     vet_email = db.Column(db.String(120), nullable=False)
     vet_password = db.Column(db.String(60), nullable=False)
     vet_profile = db.Column(db.String(200), default='/static/img/inci-icon.svg')
+    
     clinic = db.Column(db.String(200), nullable=True)
     clinic_address = db.Column(db.String(200), nullable=True)
+    timezone = db.Column(db.String(64), nullable=True)
+    lat = db.Column(Numeric(9, 6), nullable=True)                   # 38.8977
+    lng = db.Column(Numeric(9, 6), nullable=True)
+    
     booking_link = db.Column(Text)
     status = db.Column(db.String(200), nullable=True)
     
     pims = db.Column(db.String(200), nullable=True)
     integrated = db.Column(db.Boolean, default=False)
+    
+    # Batching controls
+    batch_enabled = db.Column(db.Boolean, default=True)
+    batch_window_local_start = db.Column(Time(), nullable=True)      # local clock, e.g. 01:30
+    batch_window_local_end   = db.Column(Time(), nullable=True)      # e.g. 04:30
+    max_parallel_tasks = db.Column(db.Integer, default=4, nullable=True)
+
+    # Observability
+    last_batch_started_at  = db.Column(DateTime(timezone=True), nullable=True)
+    last_batch_finished_at = db.Column(DateTime(timezone=True), nullable=True)
+
+    # Notifications
+    notify_email = db.Column(db.String(256), nullable=True)
+    
     threshold_preference = db.Column(db.Integer, default=55)
 
     integration_practice_id = db.Column(db.String(800), nullable=True)
