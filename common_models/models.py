@@ -254,6 +254,8 @@ class Dog(db.Model):
     dd_breed_mixed_secondary = db.Column(db.Integer, nullable=True)
 
     address = db.Column(db.String(180))
+    lat = db.Column(Numeric(9, 6), nullable=True)
+    lng = db.Column(Numeric(9, 6), nullable=True)
     
     de_home_square_footage = db.Column(db.Integer)
     # de_home_years_lived_in = db.Column(db.Integer) #### Remove
