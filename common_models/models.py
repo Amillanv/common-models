@@ -508,54 +508,38 @@ class EHRJson(db.Model):
         return f"<EHRJson id={self.id} dog_id={self.dog_id} file_path={self.json_file_path}>"
 
 
-class Handouts(db.Model):
-    __table_args__ = {'extend_existing': True}
-    __tablename__ = 'handouts'
-    id = db.Column(db.Integer, primary_key=True)
-    dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id', ondelete="CASCADE"), nullable=False)
-    created_by = db.Column(db.Integer, db.ForeignKey('vet.vet_id', ondelete="CASCADE"), nullable=False)
-    creation_date = db.Column(Date, server_default=func.now(), nullable=False)
-    handout_data = db.Column(db.JSON, nullable=True)
-    target_conditions = db.Column(Text, nullable=True)
-    interventions = db.relationship('PatientInterventions', back_populates='handout', cascade="all, delete-orphan")
+# class Handouts(db.Model):
+#     __table_args__ = {'extend_existing': True}
+#     __tablename__ = 'handouts'
+#     id = db.Column(db.Integer, primary_key=True)
+#     dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id', ondelete="CASCADE"), nullable=False)
+#     created_by = db.Column(db.Integer, db.ForeignKey('vet.vet_id', ondelete="CASCADE"), nullable=False)
+#     creation_date = db.Column(Date, server_default=func.now(), nullable=False)
+#     handout_data = db.Column(db.JSON, nullable=True)
+#     target_conditions = db.Column(Text, nullable=True)
+#     interventions = db.relationship('PatientInterventions', back_populates='handout', cascade="all, delete-orphan")
     
-    def __repr__(self):
-        return f"Handouts('{self.id}', '{self.dog_id}', '{self.created_by}')"
-    
-class InterventionEffects(db.Model):
-    __table_args__ = {'extend_existing': True}
-    __tablename__ = 'intervention_effects'
-    id = db.Column(db.Integer, primary_key=True)
-    patient_intervention_id = db.Column(db.Integer, db.ForeignKey('patient_interventions.id', ondelete="CASCADE"), nullable=False)
-    condition_id = db.Column(db.Integer, db.ForeignKey('conditions.condition_id'), nullable=False)
-    extected_effect = db.Column(db.Float, nullable=True)
-    actual_effect = db.Column(db.Float, nullable=True)
-    status = db.Column(db.String(50), nullable=True)
+#     def __repr__(self):
+#         return f"Handouts('{self.id}', '{self.dog_id}', '{self.created_by}')"
 
-    # Establish relationship back to PatientInterventions
-    patient_intervention = db.relationship('PatientInterventions', back_populates='condition_effects')
+# class StorySlides(db.Model):
+#     __table_args__ = {'extend_existing': True}
+#     __tablename__ = 'story_slides'
+#     id = db.Column(db.Integer, primary_key=True)
+#     story_id = db.Column(db.Integer, db.ForeignKey('patient_stories.id', ondelete="CASCADE"), nullable=False)
+#     type = db.Column(Text)
+#     image = db.Column(Text)
+#     title = db.Column(Text)
+#     url = db.Column(Text)
+#     content = db.Column(db.JSON, nullable=True)
+#     status = db.Column(Text, nullable=False, default='created')
+#     seen = db.Column(db.Boolean, default=False)
+#     seen_date = db.Column(db.DateTime, nullable=True)
+#     views = db.Column(db.Integer, default=0)
+#     story = db.relationship('PatientStories', back_populates='story_slides')
     
-    def __repr__(self):
-        return f"InterventionEffects('{self.id}', 'Patient Intervention: {self.patient_intervention_id}', 'Condition: {self.condition_id}')"
-    
-class StorySlides(db.Model):
-    __table_args__ = {'extend_existing': True}
-    __tablename__ = 'story_slides'
-    id = db.Column(db.Integer, primary_key=True)
-    story_id = db.Column(db.Integer, db.ForeignKey('patient_stories.id', ondelete="CASCADE"), nullable=False)
-    type = db.Column(Text)
-    image = db.Column(Text)
-    title = db.Column(Text)
-    url = db.Column(Text)
-    content = db.Column(db.JSON, nullable=True)
-    status = db.Column(Text, nullable=False, default='created')
-    seen = db.Column(db.Boolean, default=False)
-    seen_date = db.Column(db.DateTime, nullable=True)
-    views = db.Column(db.Integer, default=0)
-    story = db.relationship('PatientStories', back_populates='story_slides')
-    
-    def __repr__(self):
-        return f"StorySlides('{self.id}', '{self.handout_id}')"
+#     def __repr__(self):
+#         return f"StorySlides('{self.id}', '{self.handout_id}')"
 
 class ConditionGeorisk(db.Model):
     __tablename__ = 'condition_georisk'
@@ -1177,50 +1161,66 @@ class PatientEmbedding(db.Model):
 class PatientInterventions(db.Model):
     __table_args__ = {'extend_existing': True}
     __tablename__ = 'patient_interventions'
+    
     id = db.Column(db.Integer, primary_key=True)
-    handout_id = db.Column(db.Integer, db.ForeignKey('handouts.id', ondelete="CASCADE"), nullable=False)
     
-    intervention_id = db.Column(db.Integer, nullable=False)
-    intervention_type = db.Column(db.String(50), nullable=True)
-    intervention_name = db.Column(Text, nullable=True)
-    intervention_value = db.Column(db.String(250), nullable=False)
-    
-    product_name = db.Column(Text, nullable=False)
-    product_code = db.Column(db.String(50), nullable=False)
-    product_category = db.Column(db.String(250), nullable=False)
-    
-    compliant = db.Column(db.Boolean, default=True)
+    vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), nullable=False)
+    dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id'), nullable=False)
+
     status = db.Column(db.String(50), nullable=True)
+    date = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=True)
+
+    data = db.Column(db.JSON, nullable=False)
     
-    start_date = db.Column(Date, server_default=func.now(), nullable=True)
-    
-    handout = db.relationship('Handouts', back_populates='interventions')
     condition_effects = db.relationship('InterventionEffects', back_populates='patient_intervention', cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f"PatientInterventions('{self.id}', '{self.handout_id}')"
+        return f"PatientInterventions('{self.id}', '{self.intervention_type}')"
 
-class PatientStories(db.Model):
+
+class InterventionEffects(db.Model):
     __table_args__ = {'extend_existing': True}
-    __tablename__ = 'patient_stories'
-    id = db.Column(db.Integer, primary_key=True)
-    handout_id = db.Column(db.Integer, db.ForeignKey('handouts.id', ondelete="CASCADE"), nullable=False)
-    dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id', ondelete="CASCADE"), nullable=False)
-    created_by = db.Column(db.Integer, nullable=False)
-    creation_date = db.Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    url = db.Column(Text)
+    __tablename__ = 'intervention_effects'
     
-    status = db.Column(Text, nullable=False, default='created')
-    total_slides = db.Column(db.Integer, nullable=False, default=0)
-    seen_slides = db.Column(db.Integer, nullable=False, default=0)
-    completion_rate = db.Column(db.Float, nullable=True, default=0.0)
-    click = db.Column(db.Boolean, default=False)
-    first_click_date = db.Column(db.DateTime, nullable=True)
+    id = db.Column(db.Integer, primary_key=True)
+    patient_intervention_id = db.Column(db.Integer, db.ForeignKey('patient_interventions.id', ondelete="CASCADE"), nullable=False)
+    
+    condition_id = db.Column(db.Integer, db.ForeignKey('conditions.condition_id'), nullable=True)
+    extected_effect = db.Column(db.Float, nullable=True)
+    actual_effect = db.Column(db.Float, nullable=True)
+    state = db.Column(db.String(50), nullable=True)
+    
+    recommendation_name = db.Column(Text, nullable=False)
+    recommendation_category = db.Column(db.String(250), nullable=False)
+    
+    compliant = db.Column(db.Boolean, default=True)
 
-    story_slides = db.relationship('StorySlides', back_populates='story')
+    patient_intervention = db.relationship('PatientInterventions', back_populates='condition_effects')
     
     def __repr__(self):
-        return f"PatientStories('{self.id}', 'Patient ID: {self.dog_id}', 'Handout: {self.handout_id}')"
+        return f"InterventionEffects('{self.id}', 'Patient Intervention: {self.patient_intervention_id}', 'Condition: {self.condition_id}')"
+    
+# class PatientStories(db.Model):
+#     __table_args__ = {'extend_existing': True}
+#     __tablename__ = 'patient_stories'
+#     id = db.Column(db.Integer, primary_key=True)
+#     handout_id = db.Column(db.Integer, db.ForeignKey('handouts.id', ondelete="CASCADE"), nullable=False)
+#     dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id', ondelete="CASCADE"), nullable=False)
+#     created_by = db.Column(db.Integer, nullable=False)
+#     creation_date = db.Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+#     url = db.Column(Text)
+    
+#     status = db.Column(Text, nullable=False, default='created')
+#     total_slides = db.Column(db.Integer, nullable=False, default=0)
+#     seen_slides = db.Column(db.Integer, nullable=False, default=0)
+#     completion_rate = db.Column(db.Float, nullable=True, default=0.0)
+#     click = db.Column(db.Boolean, default=False)
+#     first_click_date = db.Column(db.DateTime, nullable=True)
+
+#     story_slides = db.relationship('StorySlides', back_populates='story')
+    
+#     def __repr__(self):
+#         return f"PatientStories('{self.id}', 'Patient ID: {self.dog_id}', 'Handout: {self.handout_id}')"
 
 class PromptRecommendations(db.Model):
     __table_args__ = {'extend_existing': True}
@@ -1653,22 +1653,22 @@ class ErrorLog(db.Model):
     def __repr__(self):
         return f"<ErrorLog id={self.id} level={self.level} resolved={self.resolved}>"
 
-class Flag(db.Model):
-    __table_args__ = {'extend_existing': True}
-    __tablename__ = 'flags'
-    flag_id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(DateTime, server_default=func.now(), nullable=True)
-    status = db.Column(db.Text, nullable=False)
-    reviewer_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), nullable=False)
-    reviewer_comments = db.Column(db.Text, nullable=True)
-    priority = db.Column(db.Integer, nullable=True)
+# class Flag(db.Model):
+#     __table_args__ = {'extend_existing': True}
+#     __tablename__ = 'flags'
+#     flag_id = db.Column(db.Integer, primary_key=True)
+#     timestamp = db.Column(DateTime, server_default=func.now(), nullable=True)
+#     status = db.Column(db.Text, nullable=False)
+#     reviewer_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), nullable=False)
+#     reviewer_comments = db.Column(db.Text, nullable=True)
+#     priority = db.Column(db.Integer, nullable=True)
 
-    condition_id = db.Column(db.Integer, db.ForeignKey('conditions.condition_id'), nullable=False)
-    entry_id = db.Column(db.Integer, nullable=False)
-    entry_type = db.Column(db.Text, nullable=False)
+#     condition_id = db.Column(db.Integer, db.ForeignKey('conditions.condition_id'), nullable=False)
+#     entry_id = db.Column(db.Integer, nullable=False)
+#     entry_type = db.Column(db.Text, nullable=False)
 
-    def __repr__(self):
-        return f"Flag('{self.flag_id}')"
+#     def __repr__(self):
+#         return f"Flag('{self.flag_id}')"
     
 class Feedback(db.Model):
     __table_args__ = {'extend_existing': True}
