@@ -1639,7 +1639,7 @@ class ErrorLog(db.Model):
     __tablename__ = 'error_logs'
     
     id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(Date, server_default=func.now(), nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=False)
     resolved = db.Column(db.Boolean, default=False, nullable=False)
     resolved_at = db.Column(Date, nullable=True)
     
@@ -1663,7 +1663,7 @@ class VetInteraction(db.Model):
     __tablename__ = 'vet_interactions'
     
     id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(Date, server_default=func.now(), nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     
     type = db.Column(db.String(20), nullable=False)
     message = db.Column(db.Text, nullable=True)
