@@ -1668,6 +1668,8 @@ class VetInteraction(db.Model):
     type = db.Column(db.String(20), nullable=False)
     message = db.Column(db.Text, nullable=True)
     stack_trace = db.Column(db.Text, nullable=True)
+    
+    status = db.Column(db.String(20), nullable=False)
 
     vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'))
     dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id'), nullable=True)
