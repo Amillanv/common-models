@@ -1670,6 +1670,7 @@ class VetInteraction(db.Model):
     stack_trace = db.Column(db.Text, nullable=True)
 
     vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'))
+    dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id'), nullable=True)
     
     def __repr__(self):
         return f"<VetInteraction id={self.id} type={self.type} vet_id={self.vet_id}>"
