@@ -1540,6 +1540,8 @@ class BatchRun(db.Model):
 
     metrics = db.Column(JSONB)  # any extra counters you want
     notes = db.Column(JSONB)
+    
+    status = db.Column(String, nullable=True)
 
 class TaskRun(db.Model):
     __tablename__ = "task_runs"
