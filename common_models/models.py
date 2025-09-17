@@ -1655,6 +1655,24 @@ class ErrorLog(db.Model):
     def __repr__(self):
         return f"<ErrorLog id={self.id} level={self.level} resolved={self.resolved}>"
 
+
+class VetInteraction(db.Model):
+    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'vet_interactions'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(Date, server_default=func.now(), nullable=False)
+    
+    type = db.Column(db.String(20), nullable=False)
+    message = db.Column(db.Text, nullable=True)
+    stack_trace = db.Column(db.Text, nullable=True)
+
+    vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'))
+    
+    def __repr__(self):
+        return f"<VetInteraction id={self.id} type={self.type} vet_id={self.vet_id}>"
+
+
 # class Flag(db.Model):
 #     __table_args__ = {'extend_existing': True}
 #     __tablename__ = 'flags'
