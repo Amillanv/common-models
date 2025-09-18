@@ -3,6 +3,7 @@ from common_models.db import db
 from flask_login import UserMixin
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.sql import func
 from sqlalchemy import Numeric, Time, func, text, Enum, BigInteger, UniqueConstraint, Index, Column, Integer, DateTime, String, Float, Date, ForeignKey, Boolean, Text, Table
 import csv
@@ -1537,11 +1538,11 @@ class BatchRun(db.Model):
 
     p50_ms = db.Column(BigInteger)
     p95_ms = db.Column(BigInteger)
-
-    metrics = db.Column(JSONB)  # any extra counters you want
-    notes = db.Column(JSONB)
     
-    status = db.Column(String, nullable=True)
+    status = db.Column(db.String(64), nullable=True)
+
+    notes   = db.Column(MutableDict.as_mutable(JSONB))
+    metrics = db.Column(MutableDict.as_mutable(JSONB))
 
 class TaskRun(db.Model):
     __tablename__ = "task_runs"
