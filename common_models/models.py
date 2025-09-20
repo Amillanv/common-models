@@ -1169,6 +1169,7 @@ class PatientInterventions(db.Model):
     
     vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), nullable=False)
     dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id'), nullable=False)
+    appointment_id = db.Column(db.Integer, db.ForeignKey('appointments.appointment_id'), nullable=True)
 
     status = db.Column(db.String(50), nullable=True)
     date = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=True)
@@ -1671,6 +1672,7 @@ class VetInteraction(db.Model):
     stack_trace = db.Column(db.Text, nullable=True)
     
     status = db.Column(db.String(20), nullable=False)
+    status_code = db.Column(db.Integer, nullable=True)
 
     vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'))
     dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id'), nullable=True)
