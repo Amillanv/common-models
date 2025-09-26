@@ -1179,7 +1179,7 @@ class PatientInterventions(db.Model):
     condition_effects = db.relationship('InterventionEffects', back_populates='patient_intervention', cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f"PatientInterventions('{self.id}', '{self.intervention_type}')"
+        return f"PatientInterventions('{self.id}')"
 
 
 class InterventionEffects(db.Model):
