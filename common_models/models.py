@@ -1686,6 +1686,7 @@ class VetInteraction(db.Model):
 class PmsInvoiceRaw(db.Model):
     __table_args__ = {'extend_existing': True}
     __tablename__ = 'pms_invoice_raw'
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), nullable=False)
     payload = db.Column(MutableDict.as_mutable(JSONB))
     fetched_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
