@@ -1718,9 +1718,7 @@ class InvoiceLineFact(db.Model):
     line_id = db.Column(db.String(800), primary_key=True)
     vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), nullable=False)
     dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id'), nullable=False)
-    integration_practice_id = db.Column(db.String(800), nullable=True)
     client_id = db.Column(db.String(800), nullable=True)
-    patient_id = db.Column(db.String(800), nullable=True)
     
     invoice_id = db.Column(db.String, db.ForeignKey('invoice_header_fact.invoice_id'), nullable=False)
     line_source_id = db.Column(db.String(800), nullable=True)
@@ -1739,6 +1737,7 @@ class InvoiceLineFact(db.Model):
     is_posted = db.Column(db.Boolean, default=False)
     is_voided = db.Column(db.Boolean, default=False)
     is_taxable = db.Column(db.Boolean, default=False)
+    
     category_name = db.Column(db.String(800), nullable=True)
     is_rebook_req = db.Column(db.Boolean, default=False)
     normalized_item_id = db.Column(db.String(800), nullable=True)
