@@ -1747,7 +1747,7 @@ class InvoiceLineFact(db.Model):
     
 class ApptInvoiceLink(db.Model):
     __tablename__ = 'appt_invoice_link'
-    clinic_id = db.Column(db.Integer, db.ForeignKey('clinic.clinic_id'), primary_key=True)
+    clinic_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), primary_key=True)
     appointment_id = db.Column(db.Integer, db.ForeignKey('appointments.appointment_id'), primary_key=True)
     invoice_id = db.Column(db.String, db.ForeignKey('invoice_header_fact.invoice_id'), primary_key=True)
     link_type = db.Column(db.String(20), nullable=False)   # 'same_day' | 'followup'
