@@ -475,6 +475,8 @@ class Appointments(db.Model):
     duration = db.Column(db.Integer, nullable=False)
     notes = db.Column(Text, nullable=True)
     display_id = db.Column(db.String, db.ForeignKey('displays.display_id'), nullable=True)
+    is_pointer_appt = db.Column(db.Boolean, default=False)
+    
     
     def __repr__(self):
             return f"Appointments('{self.appointment_id}')"
