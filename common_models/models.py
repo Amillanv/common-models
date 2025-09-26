@@ -1682,6 +1682,77 @@ class VetInteraction(db.Model):
         return f"<VetInteraction id={self.id} type={self.type} vet_id={self.vet_id}>"
 
 
+
+class PmsInvoiceRaw(db.Model):
+    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'pms_invoice_raw'
+    vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), nullable=False)
+    payload = db.Column(MutableDict.as_mutable(JSONB))
+    fetched_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+
+
+class InvoiceHeaderFact(db.Model):
+    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'invoice_header_fact'
+    invoice_id = db.Column(db.String(800), primary_key=True)
+    vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), nullable=False)
+    dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id'), nullable=False)
+    integration_practice_id = db.Column(db.String(800), nullable=True)
+    client_id = db.Column(db.String(800), nullable=True)
+    patient_id = db.Column(db.String(800), nullable=True)
+    
+    number = db.Column(db.String(800), nullable=True)
+    invoice_date =  db.Column(db.Date)
+    created_ts = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    updated_ts = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    is_open = db.Column(db.Boolean, default=False)
+    total_amount = db.Column(db.Numeric(12,2), nullable=True)
+    tax_amount = db.Column(db.Numeric(12,2), nullable=True)
+    currency = db.Column(db.String(800), nullable=True, default='USD')
+    is_deleted = db.Column(db.Boolean, default=False)
+
+class InvoiceLineFact(db.Model):
+    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'invoice_line_fact'
+    line_id = db.Column(db.String(800), primary_key=True)
+    vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), nullable=False)
+    dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id'), nullable=False)
+    integration_practice_id = db.Column(db.String(800), nullable=True)
+    client_id = db.Column(db.String(800), nullable=True)
+    patient_id = db.Column(db.String(800), nullable=True)
+    
+    invoice_id = db.Column(db.Integer, db.ForeignKey('invoice_header_fact.invoice_id'), nullable=False)
+    line_source_id = db.Column(db.String(800), nullable=True)
+    line_type = db.Column(db.String(800), nullable=True)
+    code_id = db.Column(db.String(800), nullable=True)
+    code_name = db.Column(db.String(800), nullable=True)
+    description = db.Column(db.String(800), nullable=True)
+    line_date = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    
+    quantity = db.Column(db.Numeric(12,2), nullable=True)
+    line_amount = db.Column(db.Numeric(12,2), nullable=True)
+    discount_amount = db.Column(db.Numeric(12,2), nullable=True)
+    fee_amount = db.Column(db.Numeric(12,2), nullable=True)
+    
+    is_payment = db.Column(db.Boolean, default=False)
+    is_posted = db.Column(db.Boolean, default=False)
+    is_voided = db.Column(db.Boolean, default=False)
+    is_taxable = db.Column(db.Boolean, default=False)
+    category_name = db.Column(db.String(800), nullable=True)
+    is_rebook_req = db.Column(db.Boolean, default=False)
+    normalized_item_id = db.Column(db.String(800), nullable=True)
+    created_ts = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    updated_ts = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    
+class ApptInvoiceLink(db.Model):
+    __tablename__ = 'appt_invoice_link'
+    clinic_id = db.Column(db.Integer, db.ForeignKey('clinic.clinic_id'), primary_key=True)
+    appointment_id = db.Column(db.Integer, db.ForeignKey('appointments.appointment_id'), primary_key=True)
+    invoice_id = db.Column(db.String, db.ForeignKey('invoice_header_fact.invoice_id'), primary_key=True)
+    link_type = db.Column(db.String(20), nullable=False)   # 'same_day' | 'followup'
+    attribution_win = db.Column(db.String(10), nullable=False)  # 'D0'|'D+7'|'D+30'
+    linked_ts = db.Column(db.DateTime(timezone=True), nullable=False, server_default=func.now())
+
 # class Flag(db.Model):
 #     __table_args__ = {'extend_existing': True}
 #     __tablename__ = 'flags'
