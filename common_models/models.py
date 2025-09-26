@@ -1737,6 +1737,16 @@ class InvoiceLineFact(db.Model):
     is_posted = db.Column(db.Boolean, default=False)
     is_voided = db.Column(db.Boolean, default=False)
     is_taxable = db.Column(db.Boolean, default=False)
+    is_declined = db.Column(db.Boolean, default=False)
+    is_discussed = db.Column(db.Boolean, default=False)
+    
+    reco_name = db.Column(db.String(800), nullable=True)
+    reco_category = db.Column(db.String(800), nullable=True)
+    match_tier = db.Column(db.Integer, nullable=True)
+    match_score = db.Column(db.Numeric(3,2), nullable=True)
+    match_rule = db.Column(db.String(120), nullable=True)
+    attributed_to_ptr = db.Column(db.Boolean, default=False)
+    attribution_win = db.Column(db.String(8), nullable=True)
     
     category_name = db.Column(db.String(800), nullable=True)
     is_rebook_req = db.Column(db.Boolean, default=False)
@@ -1752,6 +1762,12 @@ class ApptInvoiceLink(db.Model):
     link_type = db.Column(db.String(20), nullable=False)   # 'same_day' | 'followup'
     attribution_win = db.Column(db.String(10), nullable=False)  # 'D0'|'D+7'|'D+30'
     linked_ts = db.Column(db.DateTime(timezone=True), nullable=False, server_default=func.now())
+    is_pointer_appt = db.Column(db.Boolean, default=False)
+    pr_amount = db.Column(db.Numeric(12,2), nullable=True)
+    rr_amount = db.Column(db.Numeric(12,2), nullable=True)
+    
+    reco_count = db.Column(db.Integer, nullable=True)
+    matched_count = db.Column(db.Integer, nullable=True)
 
 # class Flag(db.Model):
 #     __table_args__ = {'extend_existing': True}
