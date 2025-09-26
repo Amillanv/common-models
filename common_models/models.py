@@ -1756,6 +1756,9 @@ class InvoiceLineFact(db.Model):
     created_ts = db.Column(db.DateTime(timezone=True), server_default=func.now())
     updated_ts = db.Column(db.DateTime(timezone=True), server_default=func.now())
     
+    reco_appt_id = db.Column(db.Integer, nullable=True)
+    
+    
 class ApptInvoiceLink(db.Model):
     __tablename__ = 'appt_invoice_link'
     vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), primary_key=True)
