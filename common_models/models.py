@@ -1752,7 +1752,7 @@ class InvoiceLineFact(db.Model):
     attribution_win = db.Column(db.String(8), nullable=True)
     
     category_name = db.Column(db.String(800), nullable=True)
-    category_match = db.Column(db.Numeric(3,2), nullable=True)
+    category_match = db.Column(db.Float, nullable=True)
     is_rebook_req = db.Column(db.Boolean, default=False)
     normalized_item_id = db.Column(db.String(800), nullable=True)
     created_ts = db.Column(db.DateTime(timezone=True), server_default=func.now())
