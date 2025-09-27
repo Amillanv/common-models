@@ -1761,9 +1761,13 @@ class InvoiceLineFact(db.Model):
     
 class ApptInvoiceLink(db.Model):
     __tablename__ = 'appt_invoice_link'
+    __table_args__ = {'extend_existing': True}
+    
     vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), primary_key=True)
     appointment_id = db.Column(db.Integer, db.ForeignKey('appointments.appointment_id'), primary_key=True)
     invoice_id = db.Column(db.String, db.ForeignKey('invoice_header_fact.invoice_id'), primary_key=True)
+    
+    
     link_type = db.Column(db.String(20), nullable=False)   # 'same_day' | 'followup'
     attribution_win = db.Column(db.String(10), nullable=False)  # 'D0'|'D+7'|'D+30'
     linked_ts = db.Column(db.DateTime(timezone=True), nullable=False, server_default=func.now())
