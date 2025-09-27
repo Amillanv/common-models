@@ -1744,6 +1744,7 @@ class InvoiceLineFact(db.Model):
     
     reco_name = db.Column(db.String(800), nullable=True)
     reco_category = db.Column(db.String(800), nullable=True)
+    reco_subcategory = db.Column(db.String(800), nullable=True)
     match_tier = db.Column(db.Integer, nullable=True)
     match_score = db.Column(db.Numeric(3,2), nullable=True)
     match_rule = db.Column(db.String(120), nullable=True)
@@ -1751,6 +1752,7 @@ class InvoiceLineFact(db.Model):
     attribution_win = db.Column(db.String(8), nullable=True)
     
     category_name = db.Column(db.String(800), nullable=True)
+    category_match = db.Column(db.Numeric(3,2), nullable=True)
     is_rebook_req = db.Column(db.Boolean, default=False)
     normalized_item_id = db.Column(db.String(800), nullable=True)
     created_ts = db.Column(db.DateTime(timezone=True), server_default=func.now())
@@ -1775,7 +1777,6 @@ class ApptInvoiceLink(db.Model):
     rr_amount = db.Column(db.Numeric(12,2))
     reco_count = db.Column(db.Integer)
     matched_count = db.Column(db.Integer)
-    test_col = db.Column(db.Integer, nullable = True)
     
     
 # class Flag(db.Model):
