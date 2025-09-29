@@ -1184,6 +1184,40 @@ class PatientInterventions(db.Model):
         return f"PatientInterventions('{self.id}')"
 
 
+class InterventionFact(db.Model):
+    __tablename__ = "intervention_fact"
+    
+    fact_id          = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    appointment_id   = db.Column(db.Text, nullable=False, index=True)
+    display_id       = db.Column(db.Text, nullable=True, index=True)
+    vet_id           = db.Column(db.Integer, nullable=True, index=True)
+    dog_id           = db.Column(db.Text, nullable=True, index=True)
+    appt_date        = db.Column(db.DateTime(timezone=True), nullable=False, index=True)
+
+    # frozen snapshot of what was shown & chosen
+    name             = db.Column(db.Text, nullable=False)
+    category         = db.Column(db.Text, nullable=True)
+    subcategory      = db.Column(db.Text, nullable=True)
+    state            = db.Column(db.Text, nullable=True)
+    selected         = db.Column(db.Boolean, nullable=False, default=False)
+
+    # compliance state (intent-side, before billing)
+    # enum: "selected", "declined", "discussed", "not_selected"
+    compliance_state = db.Column(db.String(32), nullable=False, index=True, default="not_selected")
+
+    # reconciliation (filled later)
+    matched_invoice_id   = db.Column(db.Text, nullable=True, index=True)
+    matched_line_id      = db.Column(db.Text, nullable=True, index=True)
+    matched_amount       = db.Column(db.Numeric, nullable=True)
+    match_score          = db.Column(db.Float, nullable=True)
+
+    # audit
+    created_ts        = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    updated_ts        = db.Column(db.DateTime(timezone=True), onupdate=func.now())
+    
+    patient_intervention_id = db.Column(db.Integer, db.ForeignKey('patient_interventions.id', ondelete="CASCADE"), nullable=False)
+    
+
 class InterventionEffects(db.Model):
     __table_args__ = {'extend_existing': True}
     __tablename__ = 'intervention_effects'
@@ -1682,17 +1716,6 @@ class VetInteraction(db.Model):
     
     def __repr__(self):
         return f"<VetInteraction id={self.id} type={self.type} vet_id={self.vet_id}>"
-
-
-
-class PmsInvoiceRaw(db.Model):
-    __table_args__ = {'extend_existing': True}
-    __tablename__ = 'pms_invoice_raw'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), nullable=False)
-    payload = db.Column(MutableDict.as_mutable(JSONB))
-    fetched_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
-
 
 class InvoiceHeaderFact(db.Model):
     __table_args__ = {'extend_existing': True}
