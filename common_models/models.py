@@ -1178,7 +1178,7 @@ class PatientInterventions(db.Model):
 
     data = db.Column(db.JSON, nullable=False)
     
-    condition_effects = db.relationship('InterventionEffects', back_populates='patient_intervention', cascade="all, delete-orphan")
+    condition_effects = db.relationship('InterventionFact', back_populates='patient_intervention', cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"PatientInterventions('{self.id}')"
@@ -1188,7 +1188,7 @@ class InterventionFact(db.Model):
     __tablename__ = "intervention_fact"
     
     fact_id          = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    appointment_id   = db.Column(db.Text, nullable=False, index=True)
+    appointment_id   = db.Column(db.Integer, nullable=False, index=True)
     display_id       = db.Column(db.Text, nullable=True, index=True)
     vet_id           = db.Column(db.Integer, nullable=True, index=True)
     dog_id           = db.Column(db.Text, nullable=True, index=True)
@@ -1200,6 +1200,7 @@ class InterventionFact(db.Model):
     subcategory      = db.Column(db.Text, nullable=True)
     state            = db.Column(db.Text, nullable=True)
     selected         = db.Column(db.Boolean, nullable=False, default=False)
+    product_name   = db.Column(db.Text, nullable=True, index=True)
 
     # compliance state (intent-side, before billing)
     # enum: "selected", "declined", "discussed", "not_selected"
@@ -1215,30 +1216,34 @@ class InterventionFact(db.Model):
     created_ts        = db.Column(db.DateTime(timezone=True), server_default=func.now())
     updated_ts        = db.Column(db.DateTime(timezone=True), onupdate=func.now())
     
-    patient_intervention_id = db.Column(db.Integer, db.ForeignKey('patient_interventions.id', ondelete="CASCADE"), nullable=False)
-    
-
-class InterventionEffects(db.Model):
-    __table_args__ = {'extend_existing': True}
-    __tablename__ = 'intervention_effects'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    patient_intervention_id = db.Column(db.Integer, db.ForeignKey('patient_interventions.id', ondelete="CASCADE"), nullable=False)
-    
     condition_id = db.Column(db.Integer, db.ForeignKey('conditions.condition_id'), nullable=True)
     extected_effect = db.Column(db.Float, nullable=True)
     actual_effect = db.Column(db.Float, nullable=True)
-    state = db.Column(db.String(50), nullable=True)
     
-    recommendation_name = db.Column(Text, nullable=False)
-    recommendation_category = db.Column(db.String(250), nullable=False)
+    patient_intervention_id = db.Column(db.Integer, db.ForeignKey('patient_interventions.id', ondelete="CASCADE"), nullable=False)
     
-    compliant = db.Column(db.Boolean, default=True)
 
-    patient_intervention = db.relationship('PatientInterventions', back_populates='condition_effects')
+# class InterventionEffects(db.Model):
+#     __table_args__ = {'extend_existing': True}
+#     __tablename__ = 'intervention_effects'
     
-    def __repr__(self):
-        return f"InterventionEffects('{self.id}', 'Patient Intervention: {self.patient_intervention_id}', 'Condition: {self.condition_id}')"
+#     id = db.Column(db.Integer, primary_key=True)
+#     patient_intervention_id = db.Column(db.Integer, db.ForeignKey('patient_interventions.id', ondelete="CASCADE"), nullable=False)
+    
+#     condition_id = db.Column(db.Integer, db.ForeignKey('conditions.condition_id'), nullable=True)
+#     extected_effect = db.Column(db.Float, nullable=True)
+#     actual_effect = db.Column(db.Float, nullable=True)
+#     state = db.Column(db.String(50), nullable=True)
+    
+#     recommendation_name = db.Column(Text, nullable=False)
+#     recommendation_category = db.Column(db.String(250), nullable=False)
+    
+#     compliant = db.Column(db.Boolean, default=True)
+
+#     patient_intervention = db.relationship('PatientInterventions', back_populates='condition_effects')
+    
+#     def __repr__(self):
+#         return f"InterventionEffects('{self.id}', 'Patient Intervention: {self.patient_intervention_id}', 'Condition: {self.condition_id}')"
     
 # class PatientStories(db.Model):
 #     __table_args__ = {'extend_existing': True}
