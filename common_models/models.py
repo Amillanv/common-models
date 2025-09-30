@@ -1808,7 +1808,7 @@ class ApptInvoiceLink(db.Model):
     is_pointer_appt = db.Column(db.Boolean, default=False)
     pr_amount = db.Column(db.Numeric(12,2))
     rr_amount = db.Column(db.Numeric(12,2))
-    reco_count = db.Column(db.Integer)
+    line_count = db.Column(db.Integer)
     matched_count = db.Column(db.Integer)
     
     
