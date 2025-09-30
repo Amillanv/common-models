@@ -1177,9 +1177,11 @@ class PatientInterventions(db.Model):
     date = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=True)
 
     data = db.Column(db.JSON, nullable=False)
-    
-    condition_effects = db.relationship('InterventionFact', back_populates='patient_intervention', cascade="all, delete-orphan")
 
+    facts = db.relationship(
+        "InterventionFact", back_populates="patient_intervention", cascade="all, delete-orphan"
+    )
+    
     def __repr__(self):
         return f"PatientInterventions('{self.id}')"
 
@@ -1221,6 +1223,9 @@ class InterventionFact(db.Model):
     actual_effect = db.Column(db.Float, nullable=True)
     
     patient_intervention_id = db.Column(db.Integer, db.ForeignKey('patient_interventions.id', ondelete="CASCADE"), nullable=False)
+    patient_intervention = db.relationship(
+        "PatientInterventions", back_populates="facts"
+    )
     
 
 # class InterventionEffects(db.Model):
