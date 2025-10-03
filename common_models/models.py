@@ -1888,7 +1888,7 @@ class ErrorLog(db.Model):
     latency_ms = db.Column(db.Integer, nullable=True)
 
     request_id = db.Column(db.String(64), nullable=True)
-    session_id = db.Column(db.String(64), nullable=True)
+    session_id = db.Column(db.String(200), nullable=True)
     user_agent_raw = db.Column(db.Text, nullable=True)
 
     # correlation to domain objects
