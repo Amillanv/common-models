@@ -1766,7 +1766,7 @@ class Ticket(db.Model):
             postgresql_where=text("status NOT IN ('resolved','closed')")
         ),
         Index("ix_tickets_priority_created", "priority", "created_at"),
-        Index("ix_tickets_clinic_created", "clinic_id", "created_at"),
+        Index("ix_tickets_vet_created", "vet_id", "created_at"),
         Index(
             "ix_tickets_fts",
             text("to_tsvector('english', coalesce(title,'') || ' ' || coalesce(summary,''))"),
