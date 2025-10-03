@@ -2,7 +2,7 @@ from datetime import datetime
 from common_models.db import db
 from flask_login import UserMixin
 from sqlalchemy.dialects.postgresql import JSON
-from sqlalchemy.dialects.postgresql import PG_ENUM, JSONB, UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.sql import func
 from sqlalchemy import Numeric, Time, func, text, Enum, BigInteger, UniqueConstraint, Index, Column, Integer, DateTime, String, Float, Date, ForeignKey, Boolean, Text, Table
@@ -1782,10 +1782,10 @@ class TargetType(enum.Enum):
 #     # human-friendly number (requires a DB sequence; see migration note)
 #     short_code = db.Column(db.BigInteger, nullable=False, unique=True, server_default=text("nextval('ticket_short_code_seq')"))
 
-#     type = db.Column(PG_ENUM(TicketType, name="ticket_type", create_type=False), nullable=False, default=TicketType.bug)
-#     source = db.Column(PG_ENUM(TicketSource, name="ticket_source", create_type=False), nullable=False, default=TicketSource.manual)
-#     status = db.Column(PG_ENUM(TicketStatus, name="ticket_status", create_type=False), nullable=False, default=TicketStatus.open)
-#     priority = db.Column(PG_ENUM(TicketPriority, name="ticket_priority", create_type=False), nullable=False, default=TicketPriority.p2)
+#     type = db.Column(ENUM(TicketType, name="ticket_type", create_type=False), nullable=False, default=TicketType.bug)
+#     source = db.Column(ENUM(TicketSource, name="ticket_source", create_type=False), nullable=False, default=TicketSource.manual)
+#     status = db.Column(ENUM(TicketStatus, name="ticket_status", create_type=False), nullable=False, default=TicketStatus.open)
+#     priority = db.Column(ENUM(TicketPriority, name="ticket_priority", create_type=False), nullable=False, default=TicketPriority.p2)
 
 #     title = db.Column(db.Text, nullable=True)
 #     summary = db.Column(db.Text, nullable=True)
@@ -1818,9 +1818,9 @@ class TargetType(enum.Enum):
 
 #     id = db.Column(db.Integer, primary_key=True)
 #     ticket_id = db.Column(db.Integer, db.ForeignKey("tickets.id", ondelete="CASCADE"), nullable=False)
-#     signal_type = db.Column(PG_ENUM(SignalType, name="signal_type", create_type=False), nullable=False)
+#     signal_type = db.Column(ENUM(SignalType, name="signal_type", create_type=False), nullable=False)
 #     signal_id = db.Column(db.Integer, nullable=False)
-#     link_type = db.Column(PG_ENUM(LinkType, name="link_type", create_type=False), nullable=False)
+#     link_type = db.Column(ENUM(LinkType, name="link_type", create_type=False), nullable=False)
 #     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 # class TicketEvent(db.Model):
@@ -1918,13 +1918,13 @@ class ErrorLog(db.Model):
 #     started_at = db.Column(db.DateTime(timezone=True), nullable=True)
 #     finished_at = db.Column(db.DateTime(timezone=True), nullable=True)
 
-#     action_type = db.Column(PG_ENUM(ActionType, name="action_type", create_type=False), nullable=False)
-#     status = db.Column(PG_ENUM(ActionStatus, name="action_status", create_type=False), nullable=False, default=ActionStatus.queued)
+#     action_type = db.Column(ENUM(ActionType, name="action_type", create_type=False), nullable=False)
+#     status = db.Column(ENUM(ActionStatus, name="action_status", create_type=False), nullable=False, default=ActionStatus.queued)
 
 #     actor_user_id = db.Column(db.Integer, nullable=True)
 #     correlation_id = db.Column(db.String(64), nullable=True)  # map to job/run id
 
-#     target_type = db.Column(PG_ENUM(TargetType, name="target_type", create_type=False), nullable=True)
+#     target_type = db.Column(ENUM(TargetType, name="target_type", create_type=False), nullable=True)
 #     target_id = db.Column(db.Integer, nullable=True)
 
 #     context = db.Column(JSONB, nullable=True)  # inputs
