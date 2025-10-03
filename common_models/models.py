@@ -1803,7 +1803,6 @@ class Ticket(db.Model):
     resolution_category = db.Column(db.String(64), nullable=True)  # e.g., bugfix, config, data_correction, education
     closed_reason = db.Column(db.String(64), nullable=True)        # e.g., duplicate, wont_fix, out_of_scope
     release_version_fixed_in = db.Column(db.String(64), nullable=True)
-    incident_id = db.Column(db.Integer, db.ForeignKey("incidents.id"), nullable=True)
 
     def __repr__(self):
         return f"<Ticket T-{self.short_code} type={self.type.value} status={self.status.value} priority={self.priority.value}>"
