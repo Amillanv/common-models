@@ -1882,6 +1882,8 @@ class ErrorLog(db.Model):
     region = db.Column(db.String(64), nullable=True)
 
     route = db.Column(db.String(200), nullable=True)
+    function_name = db.Column(db.String(200), nullable=True)
+    
     http_method = db.Column(db.String(10), nullable=True)
     http_status = db.Column(db.Integer, nullable=True)
     latency_ms = db.Column(db.Integer, nullable=True)
