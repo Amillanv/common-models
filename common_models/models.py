@@ -2,7 +2,7 @@ from datetime import datetime
 from common_models.db import db
 from flask_login import UserMixin
 from sqlalchemy.dialects.postgresql import JSON
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import PG_ENUM, JSONB, UUID
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.sql import func
 from sqlalchemy import Numeric, Time, func, text, Enum, BigInteger, UniqueConstraint, Index, Column, Integer, DateTime, String, Float, Date, ForeignKey, Boolean, Text, Table
@@ -1682,28 +1682,283 @@ class WebContent(db.Model):
     def __repr__(self):
         return f"WebContent('{self.id}')"
 
-class ErrorLog(db.Model):
-    __table_args__ = {'extend_existing': True}
-    __tablename__ = 'error_logs'
+
+class TicketType(enum.Enum):
+    bug = "bug"
+    support = "support"
+    request   = "request"
+    ops = "ops"
+    security   = "security"
     
+class TicketStatus(enum.Enum):
+    open = "open"
+    in_progress = "in_progress"
+    waiting_on_customer   = "waiting_on_customer"
+    blocked = "blocked"
+    resolved   = "resolved"
+    closed   = "closed"
+    
+class TicketPriority(enum.Enum):
+    p0 = "p0"
+    p1 = "p1"
+    p2 = "p2"
+    p3 = "p3"
+    
+class TicketSource(enum.Enum):
+    manual = "manual"
+    auto_error = "auto_error"
+    auto_feedback = "auto_feedback"
+    action = "action"
+    api = "api"
+
+class SignalType(enum.Enum):
+    feedback = "feedback"
+    error = "error"
+    action = "action"
+
+class LinkType(enum.Enum):
+    root_cause = "root_cause"
+    evidence = "evidence"
+    duplicate_of = "duplicate_of"
+
+class ActionType(enum.Enum):
+    clinic_signup_submitted = "clinic_signup_submitted"
+    clinic_approved = "clinic_approved"
+    clinic_denied = "clinic_denied"
+    pims_resync = "pims_resync"
+    pims_refresh_token = "pims_refresh_token"
+    reindex_patient = "reindex_patient"
+    screen_patient_run = "screen_patient_run"
+    recompute_plan = "recompute_plan"
+    clear_cdn_cache = "clear_cdn_cache"
+    flush_redis_keys = "flush_redis_keys"
+    backfill_metrics = "backfill_metrics"
+    rerun_etl_window = "rerun_etl_window"
+
+class ActionStatus(enum.Enum):
+    queued = "queued"
+    running = "running"
+    succeeded = "succeeded"
+    failed = "failed"
+    canceled = "canceled"
+    
+class TargetType(enum.Enum):
+    clinic = "clinic"
+    vet = "vet"
+    dog = "dog"
+    appointment = "appointment"
+    invoice = "invoice"
+    system = "system"
+    release = "release"
+    
+    
+# class Ticket(db.Model):
+#     __tablename__ = "tickets"
+#     __table_args__ = (
+#         Index(
+#             "ix_tickets_open_by_status",
+#             "status",
+#             postgresql_where=text("status NOT IN ('resolved','closed')")
+#         ),
+#         Index(
+#             "ix_tickets_open_by_assignee",
+#             "assignee_user_id",
+#             postgresql_where=text("status NOT IN ('resolved','closed')")
+#         ),
+#         Index("ix_tickets_priority_created", "priority", "created_at"),
+#         Index("ix_tickets_clinic_created", "clinic_id", "created_at"),
+#         Index(
+#             "ix_tickets_fts",
+#             text("to_tsvector('english', coalesce(title,'') || ' ' || coalesce(summary,''))"),
+#             postgresql_using="gin",
+#         ),
+#         UniqueConstraint("short_code", name="uq_tickets_short_code"),
+#     )
+
+#     id = db.Column(db.Integer, primary_key=True)
+#     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=False)
+#     updated_at = db.Column(db.DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+
+#     # human-friendly number (requires a DB sequence; see migration note)
+#     short_code = db.Column(db.BigInteger, nullable=False, unique=True, server_default=text("nextval('ticket_short_code_seq')"))
+
+#     type = db.Column(PG_ENUM(TicketType, name="ticket_type", create_type=False), nullable=False, default=TicketType.bug)
+#     source = db.Column(PG_ENUM(TicketSource, name="ticket_source", create_type=False), nullable=False, default=TicketSource.manual)
+#     status = db.Column(PG_ENUM(TicketStatus, name="ticket_status", create_type=False), nullable=False, default=TicketStatus.open)
+#     priority = db.Column(PG_ENUM(TicketPriority, name="ticket_priority", create_type=False), nullable=False, default=TicketPriority.p2)
+
+#     title = db.Column(db.Text, nullable=True)
+#     summary = db.Column(db.Text, nullable=True)
+
+#     assignee_user_id = db.Column(db.Integer, nullable=True)
+#     team = db.Column(db.String(64), nullable=True)
+
+#     vet_id = db.Column(db.Integer, db.ForeignKey("vet.vet_id"), nullable=True)
+#     dog_id = db.Column(db.Integer, db.ForeignKey("dog.dog_id"), nullable=True)
+
+#     sla_deadline_at = db.Column(db.DateTime(timezone=True), nullable=True)
+#     first_response_at = db.Column(db.DateTime(timezone=True), nullable=True)
+#     resolved_at = db.Column(db.DateTime(timezone=True), nullable=True)
+
+#     resolution_category = db.Column(db.String(64), nullable=True)  # e.g., bugfix, config, data_correction, education
+#     closed_reason = db.Column(db.String(64), nullable=True)        # e.g., duplicate, wont_fix, out_of_scope
+#     release_version_fixed_in = db.Column(db.String(64), nullable=True)
+#     incident_id = db.Column(db.Integer, db.ForeignKey("incidents.id"), nullable=True)
+
+#     def __repr__(self):
+#         return f"<Ticket T-{self.short_code} type={self.type.value} status={self.status.value} priority={self.priority.value}>"
+
+# class TicketLinkedSignal(db.Model):
+#     __tablename__ = "ticket_linked_signals"
+#     __table_args__ = (
+#         UniqueConstraint("ticket_id", "signal_type", "signal_id", name="uq_ticket_signal_unique"),
+#         Index("ix_tls_ticket", "ticket_id"),
+#         Index("ix_tls_signal", "signal_type", "signal_id"),
+#     )
+
+#     id = db.Column(db.Integer, primary_key=True)
+#     ticket_id = db.Column(db.Integer, db.ForeignKey("tickets.id", ondelete="CASCADE"), nullable=False)
+#     signal_type = db.Column(PG_ENUM(SignalType, name="signal_type", create_type=False), nullable=False)
+#     signal_id = db.Column(db.Integer, nullable=False)
+#     link_type = db.Column(PG_ENUM(LinkType, name="link_type", create_type=False), nullable=False)
+#     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+# class TicketEvent(db.Model):
+#     __tablename__ = "ticket_events"
+#     __table_args__ = (
+#         Index("ix_ticket_events_ticket_ts", "ticket_id", "ts"),
+#     )
+#     id = db.Column(db.Integer, primary_key=True)
+#     ticket_id = db.Column(db.Integer, db.ForeignKey("tickets.id", ondelete="CASCADE"), nullable=False)
+#     ts = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=False)
+#     actor_user_id = db.Column(db.Integer, nullable=True)
+#     event_type = db.Column(db.String(64), nullable=False)  # created|status_changed|priority_changed|assigned|comment_added|sla_breached|merged|runbook_executed|link_added|link_removed
+#     payload = db.Column(JSONB, nullable=True)
+
+# class TicketComment(db.Model):
+#     __tablename__ = "ticket_comments"
+#     __table_args__ = (
+#         Index("ix_ticket_comments_ticket_ts", "ticket_id", "ts"),
+#     )
+#     id = db.Column(db.Integer, primary_key=True)
+#     ticket_id = db.Column(db.Integer, db.ForeignKey("tickets.id", ondelete="CASCADE"), nullable=False)
+#     author_user_id = db.Column(db.Integer, nullable=False)
+#     ts = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=False)
+#     body_md = db.Column(db.Text, nullable=False)
+#     is_internal = db.Column(db.Boolean, server_default=text("true"), nullable=False)  # internal by default
+
+class ErrorLog(db.Model):
+    __tablename__ = "error_logs"
+    __table_args__ = (
+        Index("ix_error_logs_created_at_desc", "created_at", postgresql_using="btree"),
+        Index("ix_error_logs_fingerprint_time", "fingerprint", "created_at"),
+        Index("ix_error_logs_service_release_time", "service", "release_version", "created_at"),
+        Index("ix_error_logs_route_func", "route", "function_name"),
+        Index("ix_error_logs_vet", "vet_id"),
+        Index("ix_error_logs_dog", "dog_id"),
+        # Full-text search over message_template + stack_trace (GIN)
+        Index(
+            "ix_error_logs_fts",
+            text("to_tsvector('english', coalesce(message_template,'') || ' ' || coalesce(stack_trace,''))"),
+            postgresql_using="gin",
+        ),
+    )
+
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=False)
-    resolved = db.Column(db.Boolean, default=False, nullable=False)
-    resolved_at = db.Column(Date, nullable=True)
-    
-    level = db.Column(db.String(20), default='ERROR', nullable=False)  # e.g. ERROR, WARNING, INFO
-    message = db.Column(db.Text, nullable=True)
+
+    level = db.Column(db.String(20), default="ERROR", nullable=False)  # ERROR/WARNING/INFO
+    message = db.Column(db.Text, nullable=True)  # raw message (keep)
+    message_template = db.Column(db.Text, nullable=True)  # normalized template (dedupe)
+    message_params = db.Column(JSONB, nullable=True)  # any params extracted from message
     stack_trace = db.Column(db.Text, nullable=True)
-    
+
+    environment = db.Column(db.String(16), nullable=True)  # prod/staging/dev
+    service = db.Column(db.String(200), nullable=True)     # which service/app
+    service_component = db.Column(db.String(200), nullable=True)  # optional subcomponent
+    release_version = db.Column(db.String(64), nullable=True)     # e.g., 1.12.3
+    build_sha = db.Column(db.String(64), nullable=True)           # git sha
+    host = db.Column(db.String(128), nullable=True)
+    region = db.Column(db.String(64), nullable=True)
+
     route = db.Column(db.String(200), nullable=True)
-    function_name = db.Column(db.String(200), nullable=True)
-    
-    # If you want to tie to a specific vet or dog:
-    vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), nullable=True)
-    dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id'), nullable=True)
-    
+    http_method = db.Column(db.String(10), nullable=True)
+    http_status = db.Column(db.Integer, nullable=True)
+    latency_ms = db.Column(db.Integer, nullable=True)
+
+    request_id = db.Column(db.String(64), nullable=True)
+    session_id = db.Column(db.String(64), nullable=True)
+    user_agent_raw = db.Column(db.Text, nullable=True)
+
+    # correlation to domain objects
+    vet_id = db.Column(db.Integer, db.ForeignKey("vet.vet_id"), nullable=True)
+    dog_id = db.Column(db.Integer, db.ForeignKey("dog.dog_id"), nullable=True)
+
+    # dedupe & tagging
+    fingerprint = db.Column(db.String(64), index=True, nullable=True)  # sha1/sha256
+    tags = db.Column(JSONB, nullable=True)
+
+    # Optional suppression/silence at signal-level (does not replace ticket lifecycle)
+    silenced = db.Column(db.Boolean, server_default=text("false"), nullable=False)
+
     def __repr__(self):
-        return f"<ErrorLog id={self.id} level={self.level} resolved={self.resolved}>"
+        return f"<ErrorLog id={self.id} level={self.level} svc={self.service} fp={self.fingerprint}>"
+
+# class Action(db.Model):
+#     __tablename__ = "actions"
+#     __table_args__ = (
+#         Index("ix_actions_status_created", "status", "created_at"),
+#         Index("ix_actions_ticket", "ticket_id"),
+#         Index("ix_actions_target", "target_type", "target_id"),
+#     )
+
+#     id = db.Column(db.Integer, primary_key=True)
+
+#     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=False)
+#     started_at = db.Column(db.DateTime(timezone=True), nullable=True)
+#     finished_at = db.Column(db.DateTime(timezone=True), nullable=True)
+
+#     action_type = db.Column(PG_ENUM(ActionType, name="action_type", create_type=False), nullable=False)
+#     status = db.Column(PG_ENUM(ActionStatus, name="action_status", create_type=False), nullable=False, default=ActionStatus.queued)
+
+#     actor_user_id = db.Column(db.Integer, nullable=True)
+#     correlation_id = db.Column(db.String(64), nullable=True)  # map to job/run id
+
+#     target_type = db.Column(PG_ENUM(TargetType, name="target_type", create_type=False), nullable=True)
+#     target_id = db.Column(db.Integer, nullable=True)
+
+#     context = db.Column(JSONB, nullable=True)  # inputs
+#     outcome = db.Column(JSONB, nullable=True)  # results/errors/metrics
+
+#     ticket_id = db.Column(db.Integer, db.ForeignKey("tickets.id", ondelete="SET NULL"), nullable=True)
+
+#     def __repr__(self):
+#         return f"<Action id={self.id} type={self.action_type.value} status={self.status.value} ticket={self.ticket_id}>"
+
+class Feedback(db.Model):
+    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'feedback'
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id'), nullable=True)
+    vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), nullable=False)
+    timestamp = db.Column(DateTime, server_default=func.now(), nullable=True)
+    reported = db.Column(DateTime, server_default=func.now(), nullable=True)
+    step = db.Column(db.Text, nullable=True)
+    message = db.Column(db.Text, nullable=True)
+    browser = db.Column(db.Text, nullable=True)
+    device = db.Column(db.Text, nullable=True)
+    os = db.Column(db.Text, nullable=True)
+    network = db.Column(db.JSON, nullable=True)
+    
+    patient = db.relationship('Dog', backref='feedback')
+    vet = db.relationship('Vet', backref='feedback')
+    
+    status = db.Column(db.Text, nullable=False)
+    priority = db.Column(db.Integer, nullable=True)
+    sentiment = db.Column(db.Text, nullable=True)
+
+    def __repr__(self):
+        return f"Feedback('{self.id}')"
 
 
 class VetInteraction(db.Model):
@@ -1829,30 +2084,6 @@ class ApptInvoiceLink(db.Model):
 #     def __repr__(self):
 #         return f"Flag('{self.flag_id}')"
     
-class Feedback(db.Model):
-    __table_args__ = {'extend_existing': True}
-    __tablename__ = 'feedback'
-    id = db.Column(db.Integer, primary_key=True)
-    patient_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id'), nullable=True)
-    vet_id = db.Column(db.Integer, db.ForeignKey('vet.vet_id'), nullable=False)
-    timestamp = db.Column(DateTime, server_default=func.now(), nullable=True)
-    reported = db.Column(DateTime, server_default=func.now(), nullable=True)
-    step = db.Column(db.Text, nullable=True)
-    message = db.Column(db.Text, nullable=True)
-    browser = db.Column(db.Text, nullable=True)
-    device = db.Column(db.Text, nullable=True)
-    os = db.Column(db.Text, nullable=True)
-    network = db.Column(db.JSON, nullable=True)
-    
-    patient = db.relationship('Dog', backref='feedback')
-    vet = db.relationship('Vet', backref='feedback')
-    
-    status = db.Column(db.Text, nullable=False)
-    priority = db.Column(db.Integer, nullable=True)
-
-    def __repr__(self):
-        return f"Feedback('{self.id}')"
-
 class ProcessingStatus(db.Model):
     __table_args__ = {'extend_existing': True}
     __tablename__ = "processing_status"
