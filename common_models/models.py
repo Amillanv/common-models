@@ -2097,7 +2097,7 @@ class ProcessingStatus(db.Model):
     error_message = db.Column(db.Text, nullable=True)
     start_time = db.Column(db.DateTime, nullable=True)
     end_time = db.Column(db.DateTime, nullable=True)
-    duration = db.Column(db.Float, nullable=True)
+    duration_ms = db.Column(BigInteger)
     job_id = db.Column(db.String, nullable=True)
     extra_json = db.Column(db.String, nullable=True)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
