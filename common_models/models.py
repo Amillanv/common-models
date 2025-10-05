@@ -1962,13 +1962,14 @@ class Feedback(db.Model):
         return f"Feedback('{self.id}')"
 
 
-class VetInteraction(db.Model):
+class UserInteraction(db.Model):
     __table_args__ = {'extend_existing': True}
-    __tablename__ = 'vet_interactions'
+    __tablename__ = 'user_interactions'
     
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     
+    user_role = db.Column(db.String(20), nullable=False)
     type = db.Column(db.String(20), nullable=False)
     message = db.Column(db.Text, nullable=True)
     stack_trace = db.Column(db.Text, nullable=True)
