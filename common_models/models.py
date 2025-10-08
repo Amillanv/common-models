@@ -1575,6 +1575,8 @@ class BatchRun(db.Model):
     run_source = db.Column(db.String(32), default="api")  # manual|scheduler|api
     clinic_local_date = db.Column(Date, nullable=False)
 
+    state = db.Column(db.String(64))
+    
     requested = db.Column(db.Integer, nullable=False, default=0)
     succeeded = db.Column(db.Integer, nullable=False, default=0)
     failed = db.Column(db.Integer, nullable=False, default=0)
@@ -1607,6 +1609,9 @@ class TaskRun(db.Model):
     dog_id = db.Column(db.Integer)
 
     status = db.Column(Enum(RunStatus, name="run_status"), nullable=False, default=RunStatus.started)
+    current_step = db.Column(db.String(64))
+    current_step_started_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    
     retries = db.Column(db.Integer, nullable=False, default=0)
 
     started_at = db.Column(db.DateTime(timezone=True), server_default=func.now(), index=True)
