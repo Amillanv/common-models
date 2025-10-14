@@ -901,7 +901,6 @@ class PatientPreventions(db.Model):
         return f"PatientPreventions('{self.record_id}', 'Dog ID: {self.dog_id}', 'Prevention ID: {self.prevention_id}')"
     
 class PatientPrescriptions(db.Model):
-    __table_args__ = {'extend_existing': True}
     """
     PatientPrescriptions model representing prescription records for a dog.
 
@@ -941,6 +940,16 @@ class PatientPrescriptions(db.Model):
 
     drug_id = db.Column(db.Integer, nullable=True)
     ingredient_id = db.Column(db.Integer, nullable=True)
+    
+    __table_args__ = (
+        UniqueConstraint(
+            "dog_id", "name", "form", "start_date",
+            name="patient_prescriptions_unique",
+        ),
+        # you can also add indexes here if desired, e.g.:
+        # db.Index("ix_pp_dog_type_admdate", "dog_id", "prevention_type", "administered_date"),
+        {"extend_existing": True},
+    )
 
     def __repr__(self):
         return f"PatientPrescriptions('{self.id}')"
