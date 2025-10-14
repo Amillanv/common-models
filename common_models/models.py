@@ -15,6 +15,7 @@ import io
 from sqlalchemy.orm import relationship
 import enum
 import uuid
+from sqlalchemy import UniqueConstraint
 
 dog_vet_association = db.Table('dog_vet',
     db.Column('dog_id', db.Integer, db.ForeignKey('dog.dog_id'), primary_key=True),
@@ -851,7 +852,7 @@ class PatientAlerts(db.Model):
         return f"PatientAlerts('{self.alert_id}', 'Dog ID: {self.dog_id}')"
     
 class PatientPreventions(db.Model):
-    __table_args__ = {'extend_existing': True}
+    
     """
     Records individual instances of preventive treatments administered to a patient.
 
@@ -888,6 +889,14 @@ class PatientPreventions(db.Model):
     
     group_hash = db.Column(db.String(180), index=True)
 
+    __table_args__ = (
+        UniqueConstraint(
+            "dog_id", "prevention_type", "prevention_id", "administered_date",
+            name="patient_preventions_unique",
+        ),
+        {"extend_existing": True},
+    )
+    
     def __repr__(self):
         return f"PatientPreventions('{self.record_id}', 'Dog ID: {self.dog_id}', 'Prevention ID: {self.prevention_id}')"
     
