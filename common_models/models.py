@@ -867,6 +867,9 @@ class PatientPreventions(db.Model):
         filename (str): Filename for any related documents.
     """
     __tablename__ = 'patient_preventions'
+    __table_args__ = (
+        {"extend_existing": True},
+    )
     record_id = db.Column(db.Integer, primary_key=True, unique=True)
     dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id', ondelete="CASCADE"), nullable=False)
     prevention_type =  db.Column(db.String(50))
@@ -886,16 +889,9 @@ class PatientPreventions(db.Model):
     coverage_gap_type = db.Column(db.String, nullable=True)
     
     status = db.Column(db.String(50))
+    score = db.Column(db.Float)
     
     group_hash = db.Column(db.String(180), index=True)
-
-    __table_args__ = (
-        UniqueConstraint(
-            "dog_id", "prevention_type", "prevention_id", "administered_date",
-            name="patient_preventions_unique",
-        ),
-        {"extend_existing": True},
-    )
     
     def __repr__(self):
         return f"PatientPreventions('{self.record_id}', 'Dog ID: {self.dog_id}', 'Prevention ID: {self.prevention_id}')"
@@ -921,6 +917,10 @@ class PatientPrescriptions(db.Model):
     """
 
     __tablename__ = 'patient_prescriptions'
+    __table_args__ = (
+        {"extend_existing": True},
+    )
+
     id = db.Column(db.Integer, unique=True, primary_key=True)
     dog_id = db.Column(db.Integer, db.ForeignKey('dog.dog_id', ondelete="CASCADE"), nullable=False)
     
@@ -936,21 +936,11 @@ class PatientPrescriptions(db.Model):
     indications = db.Column(Text)
     group_hash = db.Column(db.String, index=True)
     filename = db.Column(db.String(380))
-    match_score = db.Column(db.Float)
+    score = db.Column(db.Float)
 
     drug_id = db.Column(db.Integer, nullable=True)
     ingredient_id = db.Column(db.Integer, nullable=True)
     
-    __table_args__ = (
-        UniqueConstraint(
-            "dog_id", "name", "form", "start_date",
-            name="patient_prescriptions_unique",
-        ),
-        # you can also add indexes here if desired, e.g.:
-        # db.Index("ix_pp_dog_type_admdate", "dog_id", "prevention_type", "administered_date"),
-        {"extend_existing": True},
-    )
-
     def __repr__(self):
         return f"PatientPrescriptions('{self.id}')"
 
@@ -1062,7 +1052,7 @@ class PatientDiagnostics(db.Model):
     result = db.Column(db.String(50), nullable=True)  # 'positive', 'negative', 'abnormal'
 
     diagnostic_date = db.Column(Date, nullable=False)
-    match_score = db.Column(db.Float, nullable=True)
+    score = db.Column(db.Float, nullable=True)
     comments = db.Column(db.Text, nullable=True)
     is_confirmatory = db.Column(db.Boolean, default=False)
     is_abnormal = db.Column(db.Boolean, default=False)
@@ -1099,7 +1089,7 @@ class PatientLabResult(db.Model):
     date = db.Column(Date, nullable=False)
     component_id = db.Column(db.Integer, db.ForeignKey('component.id'), nullable=True)
     
-    confidence_score = db.Column(db.Float, nullable=True)
+    score = db.Column(db.Float, nullable=True)
     group_hash = db.Column(db.String(180), index=True)
     
     def __repr__(self):
@@ -1116,7 +1106,7 @@ class PatientRecordLink(db.Model):
     target_type = db.Column(db.String(50), nullable=False)
     target_id = db.Column(db.Integer, nullable=False)
     
-    confidence_score = db.Column(db.Float, nullable=True)
+    score = db.Column(db.Float, nullable=True)
     confirmed = db.Column(db.Boolean, default=False)
     
     def __repr__(self):
